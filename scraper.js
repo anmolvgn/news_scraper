@@ -7,9 +7,9 @@ var cheerio = require("cheerio");
 let url = "https://www.nytimes.com/"
 request(url, (error, response, html) => {
     var results = [];
-    console.log('HTML:'+ html);
+    // console.log('HTML:'+ html);
 
-    let $ = cheerio.load(response);
+    let $ = cheerio.load(html);
 
     $("h2.story-heading, p.summary").each(function(i, element) {
         var headline = $(this).text();
@@ -18,6 +18,7 @@ request(url, (error, response, html) => {
         var link = $(this)
             .children("a")
             .attr("href");
+
         console.log('link:' + link);
 
         var synopsis = $(this).siblings("p.summary").text();
@@ -42,11 +43,11 @@ var logger = require('morgan');
 var mongoose = require('mongoose');
 const mongo = require('mongojs');
 
-var db = require("./models/mongo.js");
+var db = require("./models/mongo");
 
 var app = express();
 
-//app.use(logger("dev"));
+app.use(logger("dev"));
 
 app.use(body_parser.urlencoded({extended: false}));
 
@@ -60,16 +61,21 @@ mongoose.connect("mongodb://localhost/news_scraper", {
 //api routes
 
  app.get("/scrape", function(req, res) {
-    
-     cheerio.get('https://www.nytimes.com/').then(function(response){
-         var $ = cheerio.load(html);
-         $('.breaking-news-alerts alerts').each(function(i, element) {
+     let url = "https://www.nytimes.com/";    
+     request.get('https://www.nytimes.com/').then(function(response){
+         var $ = cheerio.load(response.data);
+         $("h2.story-heading, p.summary").each(function(i, element) {
              var result = {};
 
-              result.Headline = $(this)
+            result.Headline = $(this)
                  .children("a")
-                 .attr("href");
+                 .text();
             
+            result.link= $(this)
+                .children("a")
+                .attr("href");
+
+                
             db.Headlines
                   .create(result)
                   .then(function(db) {
@@ -77,11 +83,7 @@ mongoose.connect("mongodb://localhost/news_scraper", {
                   })
                   .catch(function(err){
                       res.json(err);
-                  })
-            .push({
-                 headline: headline,
-                 link: link
-             });
+                  });
           });
       });
   });
@@ -99,7 +101,7 @@ mongoose.connect("mongodb://localhost/news_scraper", {
 
  app.get('/Headlines/:id', function(req, res) {
       db.Headlines
-          .findOne({ _id: req.params.id })
+          .findOne({_id: req.params.id})
           .populate("note")
           .then(function(dbHeadlines) {
               res.json(dbHeadlines);
@@ -114,7 +116,7 @@ mongoose.connect("mongodb://localhost/news_scraper", {
       db.Note
           .create(req.body)
           .then(function(dbNote) {
-              return db.Headlines.findOneAndUpdate({ _id: req.params.id }, { Note: dbNote._id}, {new: true});            
+              return db.Headlines.findOneAndUpdate({ _id: req.params.id }, {Note: dbNote._id}, {new: true});            
           })
           .then(function(dbHeadlines){
               res.json(dbHeadlines);
