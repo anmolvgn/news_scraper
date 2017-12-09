@@ -6,6 +6,10 @@
     <!--
     <meta http-equiv="X-UA-Compatible" content="ie=edge">
     -->
+
+    <script src="https://code.jquery.com/jquery-3.2.1.min.js" integrity="sha256-hwg4gsxgFZhOsEEamdOYGBf13FyQuiTwlAQgxVSNgt4="
+        crossorigin="anonymous"></script>
+
     <title>News Scraper</title>
     <link rel="stylesheet" href="style.css">
     <header>My News Scraper</header>
@@ -14,7 +18,7 @@
     <div class="container">
         <div class= "row" col-md-4></div>
         <div class="row"col-md-12>
-            <form action="submit" id="search_form">
+            <form action="get" id="search_form">
                 <p> Article Title</p>
                 <br>
                 <span><input id= "searchTerm" type="text" name="title" value=""></span>             
@@ -29,7 +33,7 @@
     <div class="container" id="Search">
         
         <script>
-            var searchResult = $('#searchTerm').val().print();    
+            var searchResult = $('#searchTerm').val();    
         </script>
         <!-- <script src = "../scraper.js">
             var search = "";
