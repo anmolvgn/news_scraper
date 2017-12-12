@@ -41,7 +41,7 @@ request(url, (error, response, html) => {
 //var axios = require('axios');
 var logger = require('morgan');
 var mongoose = require('mongoose');
-const mongo = require('mongojs');
+// const mongo = require('mongojs');
 
 var db = require("./models/mongo");
 
